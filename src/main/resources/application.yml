@@ -1,0 +1,117 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: sharding-order
+  # 以下是分片规则配置
+  main:
+    allow-bean-definition-overriding: true
+  shardingsphere:
+    datasource:
+      # 定义数源 m是主库，s是从库
+      names: m0,m1,m2,s0,s1,s2
+      m0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver‐class‐name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/store_db?useUnicode=true
+        username: root
+        password: 123456
+      m1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver‐class‐name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3308/product_db_1?useUnicode=true
+        username: root
+        password: 123456
+      m2:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver‐class‐name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3310/product_db_2?useUnicode=true
+        username: root
+        password: 123456
+      s0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver‐class‐name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3307/store_db?useUnicode=true
+        username: root
+        password: 123456
+      s1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver‐class‐name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3309/product_db_1?useUnicode=true
+        username: root
+        password: 123456
+      s2:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver‐class‐name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3311/product_db_2?useUnicode=true
+        username: root
+        password: 123456
+    sharding:
+      # 默认分为策略，以 shop_id为分片键，分片策略为 shop_id % 2+1
+      default-database-strategy:
+        inline:
+          sharding-column: shop_id
+          algorithm-expression: ds$->{shop_id%2+1}
+      tables:
+        # t_shop分表策略，固定分配到ds0的t_shop表
+        t_shop:
+          actual-data-nodes: ds0.t_shop
+          table-strategy:
+            inline:
+              sharding-column: id
+              algorithm‐expression: t_shop
+        # t_product分表策略，分布在ds1,ds2的t_product1,t_product_2表，分片策略为 id%2+1, id采用雪花算法
+        t_product:
+          actual‐data‐nodes: ds$->{1..2}.t_product_$->{1..2}
+          key‐generator:
+            column: id
+            type: SNOWFLAKE
+          # 指定t_product表的分库策略（包括分片键和分片算法）
+          database-strategy:
+            inline:
+              sharding-column: shop_id
+              algorithm‐expression: ds$->{shop_id % 2 + 1}
+          # 指定t_product表的分片策略（包括分片键和分片算法）
+          table-strategy:
+            inline:
+              sharding-column: id
+              algorithm‐expression: t_product_$->{id % 2 + 1}
+        # t_product_desc分表策略，分布在ds1,ds2的t_product_desc1,t_product_desc_2表，分片策略为 product_id%2+1, id采用雪花算法
+        t_product_desc:
+          actual‐data‐nodes: ds$->{1..2}.t_product_$->{1..2}
+          key‐generator:
+            column: id
+            type: SNOWFLAKE
+          # 指定t_product_desc表的分库策略（包括分片键和分片算法）
+          database-strategy:
+            inline:
+              sharding-column: shop_id
+              algorithm‐expression: ds$->{shop_id % 2 + 1}
+          # 指定t_product_desc表的分片策略（包括分片键和分片算法）
+          table-strategy:
+            inline:
+              sharding-column: product_id
+              algorithm‐expression: t_product_desc_$->{product_id % 2 + 1}
+      broadcast-tables: t_region
+      # 主库从库逻辑数据源定义 ds0为store_db,ds1为product_db_1,ds2为product_db_2
+      master-slave-rules:
+        ds0:
+          master-data-source-name: m0
+          slave-data-source-names: s0
+        ds1:
+          master-data-source-name: m1
+          slave-data-source-names: s1
+        ds2:
+          master-data-source-name: m2
+          slave-data-source-names: s2
+      binding-tables[0]: t_product,t_product_desc
+    props:
+      # 打开sql输出日志
+      sql:
+        show: true
+logging:
+  level:
+    druid:
+      sql: debug
+    com:
+      example: debug

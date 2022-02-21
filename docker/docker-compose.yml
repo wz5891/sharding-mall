@@ -1,0 +1,101 @@
+version: '2'
+services:
+  m0:
+    image: mysql:5.7.35
+    container_name: m0
+    hostname: m0
+    privileged: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./conf/m.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf"
+      - "./conf/init/m0.sql:/docker-entrypoint-initdb.d/init.sql"
+    command: /bin/bash -c "chmod 644 /etc/mysql/mysql.conf.d/mysqld.cnf && /entrypoint.sh mysqld"
+    networks:
+      - mysql_net
+  s0:
+    image: mysql:5.7.35
+    container_name: s0
+    hostname: s0
+    privileged: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - "3307:3306"
+    volumes:
+      - "./conf/s.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf"
+      - "./conf/init/s0.sql:/docker-entrypoint-initdb.d/init.sql"
+    command: /bin/bash -c "chmod 644 /etc/mysql/mysql.conf.d/mysqld.cnf && /entrypoint.sh mysqld"
+    networks:
+      - mysql_net
+  m1:
+    image: mysql:5.7.35
+    container_name: m1
+    hostname: m1
+    privileged: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - "3308:3306"
+    volumes:
+      - "./conf/m.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf"
+      - "./conf/init/m1.sql:/docker-entrypoint-initdb.d/init.sql"
+    command: /bin/bash -c "chmod 644 /etc/mysql/mysql.conf.d/mysqld.cnf && /entrypoint.sh mysqld"
+    networks:
+      - mysql_net
+  s1:
+    image: mysql:5.7.35
+    container_name: s1
+    hostname: s1
+    privileged: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - "3309:3306"
+    volumes:
+      - "./conf/s.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf"
+      - "./conf/init/s1.sql:/docker-entrypoint-initdb.d/init.sql"
+    command: /bin/bash -c "chmod 644 /etc/mysql/mysql.conf.d/mysqld.cnf && /entrypoint.sh mysqld"
+    networks:
+      - mysql_net
+  m2:
+    image: mysql:5.7.35
+    container_name: m2
+    hostname: m2
+    privileged: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - "3310:3306"
+    volumes:
+      - "./conf/m.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf"
+      - "./conf/init/m2.sql:/docker-entrypoint-initdb.d/init.sql"
+    command: /bin/bash -c "chmod 644 /etc/mysql/mysql.conf.d/mysqld.cnf && /entrypoint.sh mysqld"
+    networks:
+      - mysql_net
+  s2:
+    image: mysql:5.7.35
+    container_name: s2
+    hostname: s2
+    privileged: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    ports:
+      - "3311:3306"
+    volumes:
+      - "./conf/s.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf"
+      - "./conf/init/s2.sql:/docker-entrypoint-initdb.d/init.sql"
+    command: /bin/bash -c "chmod 644 /etc/mysql/mysql.conf.d/mysqld.cnf && /entrypoint.sh mysqld"
+    networks:
+      - mysql_net
+networks:
+  mysql_net:
+    driver: bridge
